@@ -1,0 +1,12 @@
+[package]
+name = "deno-jit"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+deno_core = "0.77.1"
+mmap = "*"
+lazy_static = "1.4.0"

@@ -1,0 +1,37 @@
+import { jit } from "../mod.ts";
+
+const code = new Uint8Array([
+  // push rbp
+  0x55,
+  // mov rbp, rsp
+  0x48,
+  0x89,
+  0xe5,
+  // mov DWORD PTR [rbp-0x4], edi
+  0x89,
+  0x7d,
+  0xfc,
+  // mov DWORD PTR [rbp-0x8], esi
+  0x89,
+  0x75,
+  0xf8,
+  // mov esi, DWORD PTR [rbp-04x]
+  0x8b,
+  0x75,
+  0xfc,
+  // imul esi, DWORD PTR [rbp-0x8]
+  0x0f,
+  0xaf,
+  0x75,
+  0xf8,
+  // mov eax, esi
+  0x89,
+  0xf0,
+  // pop rbp
+  0x5d,
+  // ret
+  0xc3,
+]);
+
+let fn = jit(code);
+fn(2, 2);

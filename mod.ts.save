@@ -1,0 +1,42 @@
+import { Plug } from "https://deno.land/x/plug/mod.ts";
+const path = "target/debug";
+const options: Plug.Options = {
+    name: "deno_jit",
+    urls: {
+      darwin: `${path}/libdeno_jit.dylib`,
+      windows: `${path}/deno_jit.dll`,
+      linux: `${path}/libdeno_jit.so`,
+    },
+    cache: ".",
+}
+
+const rid = await Plug.prepare(options);
+
+const { jit_compile } = Plug.core.ops();
+
+export function jit(inst: Uint8Array) {
+  return (...args: any[]) => {
+    Plug.core.dispatch(
+        jit_compile,
+        inst,
+        new Uint8Array([]),
+    )
+  }
+}
+
+const code = new Uint8Array([
+  0x48, 0x31, 0xED,
+  .
+ // 0x55, // push rbp
+  0x48, 0x89, 0xe5, // mov rbp, rsp
+  0x89, 0x7d, 0xfc, // mov DWORD PTR [rbp-0x4],edi
+  0x89, 0x75, 0xf8, // mov DWORD PTR [rbp-0x8],esi
+  0x8b, 0x75, 0xfc, // mov esi,DWORD PTR [rbp-04x]
+  0x0f, 0xaf, 0x75, 0xf8, // imul esi,DWORD PTR [rbp-0x8]
+  0x89, 0xf0, // mov eax,esi
+  //0x5d, // pop rbp
+  0xc3 // ret
+
+]);
+let fn = jit(code);
+fn();
